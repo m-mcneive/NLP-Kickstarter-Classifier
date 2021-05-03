@@ -41,7 +41,6 @@ def createMatrix(vocab, cutoff):
     return np.zeros((cutoff, len(vocab)), dtype = int)
 
 def condenseData(m, t):
-    print("condensing")
     matrix = []
     targets = []
     for i in range(len(m)):
@@ -107,11 +106,6 @@ def createModel(cutoff, vocab_length):
     model.add(layers.Dense(16, activation = 'relu', input_shape = (cutoff,vocab_length)))
     model.add(layers.Dense(8, activation = 'relu'))
     model.add(layers.Dense(1, activation = 'sigmoid'))
-    """
-    model.add(Embedding(vocab_length, 32))
-    model.add(SimpleRNN(32))
-    model.add(layers.Dense(1, activation = 'sigmoid'))
-    """
 
     model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['accuracy'])
 
@@ -124,19 +118,21 @@ def trainAndEvaluate(model, train_matrix, train_targets, test_matrix, test_targe
     history = model.fit(train_matrix, train_targets, epochs = 15, batch_size = 500, validation_data = (train_matrix, train_targets))
     results = model.evaluate(test_matrix, test_targets)
 
+    
+
+
+
+
 
 
 def main():
     vocab = generateVocabulary(300)
-    print(len(vocab))
     cutoff = int(len(file) * 0.7)
     train_matrix = createMatrix(vocab, cutoff)
     train_matrix, train_targets = populateTrainMatrix(vocab, train_matrix)
-    print("1")
 
     test_matrix = createTestMatrix(vocab, cutoff)
     test_matrix, test_targets = populateTestMatrix(vocab, test_matrix, cutoff)
-    print("2")
 
     model = createModel(cutoff, len(vocab))
 
