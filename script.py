@@ -7,6 +7,7 @@ from keras import optimizers
 from numpy.lib.npyio import savetxt
 from tensorflow.python.keras.layers.embeddings import Embedding
 from tensorflow.python.keras.layers.recurrent import SimpleRNN
+from keras.utils.vis_utils import plot_model
 
 file = open('df_text_eng.csv', 'r')
 file = file.readlines()
@@ -54,7 +55,9 @@ def condenseData(m, t):
     return np.asarray(matrix), np.asarray(targets)
 
 
-
+"""
+    Assigns the training data matrix with the correct values (0 or 1)
+"""
 def populateTrainMatrix(vocab, matrix):
     targets = []
     for i in range(len(matrix)):
@@ -74,7 +77,9 @@ def populateTrainMatrix(vocab, matrix):
 
 
 
-
+"""
+    Following 2 functions to same things as above with train data but slightly altered for the test data
+"""
 def createTestMatrix(vocab, cutoff):
     return np.zeros((len(file) - cutoff, len(vocab)), dtype = int)
 
@@ -106,6 +111,7 @@ def createModel(cutoff, vocab_length):
     model.add(layers.Dense(16, activation = 'relu', input_shape = (cutoff,vocab_length)))
     model.add(layers.Dense(8, activation = 'relu'))
     model.add(layers.Dense(1, activation = 'sigmoid'))
+    #plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
     model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['accuracy'])
 
@@ -115,7 +121,7 @@ def createModel(cutoff, vocab_length):
 Trains keras model with the training data and evaluates with the test data
 """
 def trainAndEvaluate(model, train_matrix, train_targets, test_matrix, test_targets):
-    history = model.fit(train_matrix, train_targets, epochs = 15, batch_size = 500, validation_data = (train_matrix, train_targets))
+    history = model.fit(train_matrix, train_targets, epochs = 15, batch_size = 350, validation_data = (train_matrix, train_targets))
     results = model.evaluate(test_matrix, test_targets)
 
     
@@ -126,7 +132,10 @@ def trainAndEvaluate(model, train_matrix, train_targets, test_matrix, test_targe
 
 
 def main():
+    #Creates the vocabulary
     vocab = generateVocabulary(300)
+
+    #Cutoff is the index in the entire data set where we switch from train to test
     cutoff = int(len(file) * 0.7)
     train_matrix = createMatrix(vocab, cutoff)
     train_matrix, train_targets = populateTrainMatrix(vocab, train_matrix)
