@@ -1,6 +1,5 @@
 import numpy as np 
-import csv
-from sklearn.utils import shuffle
+import matplotlib.pyplot as plt
 from keras import models
 from keras import layers
 from keras import optimizers
@@ -11,7 +10,6 @@ from keras.utils.vis_utils import plot_model
 
 file = open('df_text_eng.csv', 'r')
 file = file.readlines()
-
 
 """
 Creates vocabulary from training data. Will condense the vocabulary to a user-specified minimum number of 
@@ -113,7 +111,7 @@ def createModel(cutoff, vocab_length):
     model.add(layers.Dense(1, activation = 'sigmoid'))
     #plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
-    model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['accuracy'])
+    model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['acc'])
 
     return model
 
@@ -121,14 +119,29 @@ def createModel(cutoff, vocab_length):
 Trains keras model with the training data and evaluates with the test data
 """
 def trainAndEvaluate(model, train_matrix, train_targets, test_matrix, test_targets):
-    history = model.fit(train_matrix, train_targets, epochs = 15, batch_size = 350, validation_data = (train_matrix, train_targets))
-    results = model.evaluate(test_matrix, test_targets)
+    history = model.fit(train_matrix, train_targets, epochs = 15, batch_size = 500, validation_data = (train_matrix, train_targets))
+    """
+    Viusliation for the model
 
+    # summarize history for accuracy
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
     
-
-
-
-
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+    """
+    results = model.evaluate(test_matrix, test_targets)
 
 
 def main():
