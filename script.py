@@ -1,16 +1,16 @@
 import numpy as np 
-import csv
-from sklearn.utils import shuffle
+import matplotlib.pyplot as plt
 from keras import models
 from keras import layers
-from keras import optimizers
-from numpy.lib.npyio import savetxt
-from tensorflow.python.keras.layers.embeddings import Embedding
-from tensorflow.python.keras.layers.recurrent import SimpleRNN
+#import csv
+#from sklearn.utils import shuffle
+#from keras import optimizers
+#from numpy.lib.npyio import savetxt
+#from tensorflow.python.keras.layers.embeddings import Embedding
+#from tensorflow.python.keras.layers.recurrent import SimpleRNN
 
-file = open('df_text_eng.csv', 'r')
+file = open('df_text_eng.csv', 'r', encoding = 'utf-8')
 file = file.readlines()
-
 
 """
 Creates vocabulary from training data. Will condense the vocabulary to a user-specified minimum number of 
@@ -54,7 +54,6 @@ def condenseData(m, t):
     return np.asarray(matrix), np.asarray(targets)
 
 
-
 def populateTrainMatrix(vocab, matrix):
     targets = []
     for i in range(len(matrix)):
@@ -71,8 +70,6 @@ def populateTrainMatrix(vocab, matrix):
         except IndexError:
             continue
     return condenseData(matrix, targets)
-
-
 
 
 def createTestMatrix(vocab, cutoff):
@@ -107,7 +104,7 @@ def createModel(cutoff, vocab_length):
     model.add(layers.Dense(8, activation = 'relu'))
     model.add(layers.Dense(1, activation = 'sigmoid'))
 
-    model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['accuracy'])
+    model.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['acc'])
 
     return model
 
@@ -116,13 +113,24 @@ Trains keras model with the training data and evaluates with the test data
 """
 def trainAndEvaluate(model, train_matrix, train_targets, test_matrix, test_targets):
     history = model.fit(train_matrix, train_targets, epochs = 15, batch_size = 500, validation_data = (train_matrix, train_targets))
-    results = model.evaluate(test_matrix, test_targets)
-
+    # summarize history for accuracy
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
     
-
-
-
-
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+    results = model.evaluate(test_matrix, test_targets)
 
 
 def main():
